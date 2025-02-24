@@ -6,13 +6,11 @@ from langchain.chains import ConversationChain
 import os
 from dotenv import load_dotenv
 
-# .envファイルから環境変数を読み込む
-load_dotenv()
 
-# OpenAI APIキーの設定
-api_key = os.getenv("OPENAI_API_KEY")
-if api_key is None:
-    st.error("APIキーが設定されていません。.envファイルを確認してください。")
+# OpenAI APIキーの設定（StreamlitのSecretsを使う）
+api_key = st.secrets["OPENAI_API_KEY"]
+if not api_key:
+    st.error("APIキーが設定されていません。StreamlitのSecretsを確認してください。")
     st.stop()
 
 # Streamlitのページ設定
@@ -23,7 +21,7 @@ st.write("アシスタントと対話しながら、オリジナルの小噺を�
 if "memory" not in st.session_state:
     st.session_state.memory = ConversationBufferMemory()
 if "chain" not in st.session_state:
-    llm = OpenAI(temperature=0.7)
+    llm = OpenAI(api_key=api_key, temperature=0.7)
     st.session_state.chain = ConversationChain(
         llm=llm,
         memory=st.session_state.memory,
